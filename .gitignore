@@ -1,0 +1,9 @@
+*.swp
+*.swn
+*.swo
+*.iws
+*.iml
+*.ipr
+.idea
+nosetests.xml
+*.pyc
