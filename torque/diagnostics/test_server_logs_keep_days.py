@@ -65,9 +65,15 @@ class TestServerLogs():
         ok_( os.path.isdir(serverLogsPath) ), "ERROR: path %s is not found" % (serverLogsPath)
          # now restart TORQUE
         print "Restarting TORQUE..."
-        output,err = issueCmd( ["sudo","pbs_server"] )
+        output,err = issueCmd( ["pbs_server"] )
         #print "TORQUE restarted..."
 
+        time.sleep(2)
+
+         # now restart trqauthd
+        print "Restarting trqauthd..."
+        output,err = issueCmd( ["trqauthd"] )
+        
         # enter a new parameter into torque:  qmgr -c "set server log_keep_days=2"
         output,err = issueCmd(['qmgr', '-c', 'set server log_keep_days=2'], "")
         #print "log_keep_days  output: ", output, "  err: ", err
