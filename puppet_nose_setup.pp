@@ -35,6 +35,5 @@ if ($::osfamily == 'RedHat'and $::operatingsystemrelease =~ /^5/) {
   package { "python-nose":
   ensure => installed,
   require => Package[$nosedepssles11],
-  creates => "/usr/bin/nosetests",
   }
 }
