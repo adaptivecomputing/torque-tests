@@ -33,7 +33,7 @@ if ($::osfamily == 'RedHat'and $::operatingsystemrelease =~ /^5/) {
 } else {
 ## Assume SLES 11
 exec { "install_nose_sles":
-  command => "/usr/bin/zypper --no-gpg-checks install --y http://download.opensuse.org/repositories/devel:/languages:/python/SLE_11_SP3/x86_64/python-nose-1.3.0-66.1.x86_64.rpm",
+  command => "/usr/bin/zypper --no-gpg-checks install -y http://download.opensuse.org/repositories/devel:/languages:/python/SLE_11_SP3/x86_64/python-nose-1.3.0-66.1.x86_64.rpm",
   require => Package[$nosedepssles11],
   creates => "/usr/bin/nosetests",
  }
