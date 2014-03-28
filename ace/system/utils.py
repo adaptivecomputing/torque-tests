@@ -14,27 +14,27 @@ import socket
 USERNAME = "adaptive"
 
 
-def isRunningAsRoot():
+def is_running_as_root():
     return (os.geteuid() == 0)  # if os.geteuid()==0, then is running as root
 
-#def getNonRootUser():
+#def get_non_root_user():
 #    statinfo = os.stat(os.getcwd())
 #    print statinfo
 #    USERNAME = pwd.getpwuid(statinfo.st_uid).pw_name
 #    print "USERNAME :", USERNAME
 #    return USERNAME
 
-def getPid( processName ):
-    pid, err = issueCmd( ["pgrep", processName] )
+def get_pid( process_name ):
+    pid, err = issue_cmd( ["pgrep", process_name] )
     return pid.rstrip(),err # strip off whitespace chars
 
-def startService( serviceName ):
-    output, err = issueCmd( ["service", serviceName, "start"] )
+def start_service( service_name ):
+    output, err = issue_cmd( ["service", service_name, "start"] )
     return output
 
 
-def issueCmd( cmd, stdin = "" ):
-    #print "issueCmd: cmd: ", cmd, ",  stdin: ",stdin
+def issue_cmd( cmd, stdin = "" ):
+    #print "issue_cmd: cmd: ", cmd, ",  stdin: ",stdin
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate( stdin )
     if p.returncode!=0:
@@ -43,15 +43,15 @@ def issueCmd( cmd, stdin = "" ):
         raise subprocess.CalledProcessError(p.returncode, str(cmd))
     return out,err
 
-def issueCmdAsNonRootUser( cmd, stdin = ""):
+def issue_cmd_as_non_root_user( cmd, stdin = ""):
     global USERNAME
     print "switching to non-root user: ", USERNAME, "... ",
-    nonRootUserArgs = ['su', USERNAME, '-c']
+    non_root_user_args = ['su', USERNAME, '-c']
     # cmd is a string, so append to the list
-    nonRootUserArgs.append(cmd)
-    #print "nonRootUserArgs: ", nonRootUserArgs
+    non_root_user_args.append(cmd)
+    #print "non_root_user_args: ", non_root_user_args
     #print "stdin:" , stdin
-    p = subprocess.Popen(nonRootUserArgs, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(non_root_user_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate( stdin )
     if p.returncode!=0:
         print 'Standard output: %s' % out
@@ -59,8 +59,8 @@ def issueCmdAsNonRootUser( cmd, stdin = ""):
         raise subprocess.CalledProcessError(p.returncode, str(cmd))
     return out,err
 
-def isProcessRunning(processName):
-    pid, err = issueCmd(["pgrep", processName])
+def is_process_running(process_name):
+    pid, err = issue_cmd(["pgrep", process_name])
     pid.rstrip(),err
 
     if pid:

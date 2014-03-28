@@ -3,17 +3,24 @@
 import time
 from nose.tools import ok_
 import sys
-from ace.system.utils import issueCmd, getPid
+from ace.system.utils import *
 
 _username = "adaptive"  # default value
 
+def shutdown_moab_if_running():
+    # Shutdown moab if it is running
+    try:
+        os.system('mschedctl -k > /dev/null 2>&1')
+    except:
+        pass 
+
 def clean_all_jobs():
-    issueCmd(["qdel", "all"])
+    issue_cmd(["qdel", "all"])
 
-def isJobInQstatList( targetJobID, ignoreJobStatusColumn ):  # if True, ignore the Job Status column (4th column) in the Qstat output
-    retVal = False
+def is_job_in_qstat_list( target_job_id, ignore_job_status_column ):  # if True, ignore the Job Status column (4th column) in the Qstat output
+    ret_val = False
 
-    output,err = issueCmd( "qstat" )
+    output,err = issue_cmd( "qstat" )
 
     linenum = 0
     for line in output.split('\n'):
@@ -22,14 +29,14 @@ def isJobInQstatList( targetJobID, ignoreJobStatusColumn ):  # if True, ignore t
             parts = line.split()
             #print "line: ", linenum, "  ", parts
             #print "parts[4]=>>", parts[4], "<<"
-            jobIDparts = parts[0].split(".")
-            #print "jobIDparts= ", jobIDparts
-            jobID = jobIDparts[0]
-            #print "isJobInQstatList--jobID= ", jobID
-            #print "isJobInQstatList--targetJobID: ", targetJobID
-            if jobID == targetJobID:
-                #print "jobID ", jobID, "  was found in list"
-                if not ignoreJobStatusColumn:
+            job_id_parts = parts[0].split(".")
+            #print "job_id_parts= ", job_id_parts
+            job_id = job_id_parts[0]
+            #print "is_job_in_qstat_list--job_id= ", job_id
+            #print "is_job_in_qstat_list--target_job_id: ", target_job_id
+            if job_id == target_job_id:
+                #print "job_id ", job_id, "  was found in list"
+                if not ignore_job_status_column:
                     # NOTE: Job status column usually has the following values:
                     # Q - means job is queued
                     # R - means job is running
@@ -38,25 +45,25 @@ def isJobInQstatList( targetJobID, ignoreJobStatusColumn ):  # if True, ignore t
                     if parts[4] == "C" or parts[4] == "E":  # see if job is already completed -- if so, indicate "it's been removed"
                         break
                     else:
-                        retVal = True
+                        ret_val = True
                 else:
-                    retVal = True
+                    ret_val = True
 
         linenum += 1
 
-    return retVal,output
+    return ret_val,output
 
-def checkPbsnodesResult():
-    retVal = False
-    nodeNames  = []
+def check_pbsnodes_result():
+    ret_val = False
+    node_names  = []
 
-    output,err = issueCmd( "pbsnodes" )
+    output,err = issue_cmd( "pbsnodes" )
     #print "output from pbsnodes: ",output
     linenum = 0
     for line in output.split('\n'):
         #print "pbsnodes line: ", line
         if linenum == 0:
-            nodeNames.append(line)  # add to nodeNames list
+            node_names.append(line)  # add to node_names list
         parts = line.split()
         #print "line: ", parts
         #print "parts[0]= ", parts[0]
@@ -68,79 +75,79 @@ def checkPbsnodesResult():
             # line should be: "state = free"
             value = parts[2]
             if value == "free":
-                retVal = True
+                ret_val = True
             break
 
         linenum += 1
 
-    return retVal,nodeNames,err
+    return ret_val,node_names,err
 
 
-def waitForProcessToStart( processName ):
+def wait_for_process_to_start( process_name ):
     process_started = False
     iteration = 0
     for num in range(1,15):
         time.sleep(2)
-        pid,err = getPid ( processName )  # make sure process was started
+        pid,err = get_pid ( process_name )  # make sure process was started
         if pid:
-            print processName, " was started, iteration: ", iteration
+            print process_name, " was started, iteration: ", iteration
             process_started = True
             break
         else:
-            print "  Couldn't start process: ", processName, ", reason: ", err
+            print "  Couldn't start process: ", process_name, ", reason: ", err
             iteration += 1
 
-    ok_( process_started, msg="ERROR: process: %s was not started" % processName)
+    ok_( process_started, msg="ERROR: process: %s was not started" % process_name)
 
-def waitForItemToBeRemovedFromList( functionName, jobID ):
+def wait_for_item_removed( function_name, job_id ):
     # make sure job has been removed from qstat list
-    foundInList = True
+    found_in_list = True
     iteration = 0
     output = ""
     # now delay a few seconds to let the item disappear..
     for num in range(1,120):  # loop for  120(*2) secs
         time.sleep(2)
-        result,output = isJobInQstatList( jobID, False )
+        result,output = is_job_in_qstat_list( job_id, False )
         if not result:
-            foundInList = False
+            found_in_list = False
             break
         else :
             sys.stdout.write( "\r    waiting for job to be completed...  %d secs ... " % (iteration * 2) )
             sys.stdout.flush()
             iteration += 1
 
-    ok_( not foundInList, msg="ERROR: job %s is found in qstat list and shouldn't be, qstat results: %s" % (jobID, output))
+    ok_( not found_in_list, msg="ERROR: job %s is found in qstat list and shouldn't be, qstat results: %s" % (job_id, output))
 
-def waitForItemToAppearInList( functionName, jobID ):
+def wait_for_item_present( function_name, job_id ):
     # make sure job is found qstat list
-    foundInList = False
+    found_in_list = False
     iteration = 0
     output = ""
     # now delay a few seconds to let the item appear..
     for num in range(1,120):
         time.sleep(2)
-        result,output = isJobInQstatList( jobID, True )
+        result,output = is_job_in_qstat_list( job_id, True )
         if result:
-            foundInList = True
+            found_in_list = True
             break
         else :
             sys.stdout.write( "\r    waiting for job to be found in qstat list...  %d secs ... " % (iteration * 2) )
             sys.stdout.flush()
             iteration += 1
 
-    ok_( foundInList, msg="ERROR: job %s is NOT found in qstat list and should be, qstat results: %s" % (jobID, output))
+    ok_( found_in_list, msg="ERROR: job %s is NOT found in qstat list and should be, qstat results: %s" % (job_id, output))
 
 
-def do_is_TORQUE_running( ):
+def do_is_torque_running( ):
     sys.stdout.write("  Making sure trqauthd, pbs_server, and pbs_mom services are running... ")
     # check to see if trqauthd, pbs_server, pbs_mom are already running -- if not, start them
-    pid,err = getPid ("trqauthd")
+    pid,err = get_pid ("trqauthd")
     ok_( pid, msg="ERROR: trqauthd is not currently running")
 
-    pid,err = getPid ("pbs_server")
+    pid,err = get_pid ("pbs_server")
     ok_( pid, msg="ERROR: pbs_server is not currently running")
 
-    pid,err = getPid ("pbs_mom")
+    pid,err = get_pid ("pbs_mom")
     ok_( pid, msg="ERROR: pbs_mom is not currently running")
 
     sys.stdout.write("OK")
@@ -148,7 +155,7 @@ def do_is_TORQUE_running( ):
 def do_get_pbsnodes_result( ):
     sys.stdout.write("\n  Inspecting pbsnodes contents... ")
 
-    result,nodeNames,err = checkPbsnodesResult( )
-    ok_( result, msg="ERROR: pbsnodes result, node: %s, state is not free, pbsnodes output:\n%s" % (nodeNames[0], err))
+    result,node_names,err = check_pbsnodes_result( )
+    ok_( result, msg="ERROR: pbsnodes result, node: %s, state is not free, pbsnodes output:\n%s" % (node_names[0], err))
     sys.stdout.write("OK")
 

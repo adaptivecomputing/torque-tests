@@ -23,11 +23,11 @@ def get_socket(socket_type):
 
 def create_message(message_type, message_body):
   return json.dumps({
-      'messageId':str(uuid.uuid1()), 
-      'senderId':"system-tests@localhost", 
-      'sentDate':datetime.datetime.now().isoformat(), 
+      'message_id':str(uuid.uuid1()), 
+      'sender_id':"system-tests@localhost", 
+      'sent_date':datetime.datetime.now().isoformat(), 
       'ttl':10,
-      'messageType':message_type,
+      'message_type':message_type,
       'body':message_body
     }, separators=(',',':'))
 

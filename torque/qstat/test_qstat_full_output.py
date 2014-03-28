@@ -1,8 +1,8 @@
 import time
 from nose.plugins.attrib import attr
 import sys
-from ace.system.utils import issueCmd, isProcessRunning, isRunningAsRoot, issueCmdAsNonRootUser
-from ace.torque.utils import clean_all_jobs
+from ace.system.utils import *
+from ace.torque.utils import *
 
 
 def analyze_qstat_full_output(result):
@@ -98,18 +98,18 @@ def analyze_qstat_full_output(result):
           assert False
 
 def submit_run_job_check_status():
-    moabRunning = True # assume moab is running
-    if not isProcessRunning("moab"):
-       moabRunning = False
-       if not isRunningAsRoot():
+    moab_running = True # assume moab is running
+    if not is_process_running("moab"):
+       moab_running = False
+       if not is_running_as_root():
           print " You either have to have moab started or run this test as root\n"
           assert False     
 
     print "\n  Submitting sleep job of 10 seconds..."
-    if isRunningAsRoot():
-        result,err = issueCmdAsNonRootUser('qsub', "sleep 10")
+    if is_running_as_root():
+        result,err = issue_cmd_as_non_root_user('qsub', "sleep 10")
     else:
-        result,err = issueCmd('qsub', "sleep 10")
+        result,err = issue_cmd('qsub', "sleep 10")
 
     if ("can not be" in result) or ("MSG=" in result) :
         print " Job Submission failed\n"
@@ -120,8 +120,8 @@ def submit_run_job_check_status():
         print " Job Submission failed. Job ID is empty"
         assert False
 
-    if not moabRunning:
-        result,err = issueCmd(['qrun', parts[0]])
+    if not moab_running:
+        result,err = issue_cmd(['qrun', parts[0]])
         if "Unknown Job Id Error" in result:
             print "  Failed to run job, error message was: ", result
             assert False
@@ -130,7 +130,7 @@ def submit_run_job_check_status():
     time.sleep(25)
  
     cmd = ['qstat', '-f', parts[0]]
-    result,err = issueCmd(cmd)
+    result,err = issue_cmd(cmd)
 
     if "Unknown Job Id Error" in result:
         print "  qstat on job " + parts[0] + " failed\n"
@@ -144,7 +144,6 @@ def submit_run_job_check_status():
 
     analyze_qstat_full_output(result)
 
-# Test attributes - must be defined just before the routine they apply to
 @attr(jira='TRQ-2327')
 @attr(owner='echan')
 @attr(level='1') 
