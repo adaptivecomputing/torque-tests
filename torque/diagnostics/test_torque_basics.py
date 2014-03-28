@@ -13,6 +13,7 @@ from ace.system.utils import *
 from nose.plugins.attrib import attr
 from nose.tools import ok_
 from ace.torque.utils import *
+from ace.config import *
 
 
 def do_submit_basic_job( ):
@@ -131,9 +132,9 @@ def do_submit_array_job( ):
 class TestBasicTorque:
     def test_basic_torque(self):
         if is_running_as_root():
-            print "  Running as root; non-root username:", _username
+            print "  Running as root; non-root username:", USERNAME
         else :
-            print "  Not running as root; username:", _username
+            print "  Not running as root; username:", USERNAME
     
         start_time = time.time()
         # Bring up pbs_server and a mom; run a few basic jobs

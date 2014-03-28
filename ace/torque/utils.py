@@ -1,11 +1,7 @@
-# NOTE: make sure the _username is the non-root username of the machine this test is running on.
-# In the case of vapor instances, the non-root username will be "adaptive".
 import time
 from nose.tools import ok_
 import sys
 from ace.system.utils import *
-
-_username = "adaptive"  # default value
 
 def shutdown_moab_if_running():
     # Shutdown moab if it is running
