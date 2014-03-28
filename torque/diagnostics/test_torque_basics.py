@@ -55,8 +55,10 @@ def do_submit_job_with_walltime( ):
     wait_for_item_present( "do_submit_job_with_walltime", job_id )
     sys.stdout.write("OK")
 
-    sys.stdout.write("\n  Running job with qrun, letting walltime expire the job... \n")
-    result,err = issue_cmd( ['qrun',job_id] )
+    if not is_process_running("moab"):
+        sys.stdout.write("\n  Running job with qrun, letting walltime expire the job... \n")
+        result,err = issue_cmd( ['qrun',job_id] )
+
     # now delay for a while to let the walltime (10 secs) expire the job..
     wait_for_item_removed( "do_submit_job_with_walltime", job_id )
     sys.stdout.write("OK")
