@@ -33,17 +33,17 @@ def start_service( service_name ):
     return output
 
 
-def issue_cmd( cmd, stdin = "" ):
+def issue_cmd(cmd, stdin = "", ignore_errors=False):
     #print "issue_cmd: cmd: ", cmd, ",  stdin: ",stdin
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate( stdin )
-    if p.returncode!=0:
+    if not ignore_errors and p.returncode!=0:
         print 'Standard output: %s' % out
         print 'Standard error: %s' % err
         raise subprocess.CalledProcessError(p.returncode, str(cmd))
     return out,err
 
-def issue_cmd_as_non_root_user( cmd, stdin = ""):
+def issue_cmd_as_non_root_user(cmd, stdin = "", ignore_errors=False):
     global USERNAME
     print "switching to non-root user: ", USERNAME, "... ",
     non_root_user_args = ['su', USERNAME, '-c']
@@ -53,14 +53,14 @@ def issue_cmd_as_non_root_user( cmd, stdin = ""):
     #print "stdin:" , stdin
     p = subprocess.Popen(non_root_user_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate( stdin )
-    if p.returncode!=0:
+    if not ignore_errors and p.returncode!=0:
         print 'Standard output: %s' % out
         print 'Standard error: %s' % err
         raise subprocess.CalledProcessError(p.returncode, str(cmd))
     return out,err
 
 def is_process_running(process_name):
-    pid, err = issue_cmd(["pgrep", process_name])
+    pid, err = issue_cmd(["pgrep", process_name], ignore_errors=True)
     pid.rstrip(),err
 
     if pid:

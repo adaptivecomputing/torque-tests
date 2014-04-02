@@ -7,9 +7,7 @@ import os, sys
 import time
 import datetime
 from datetime import date
-from ace.system.utils import is_running_as_root
-from ace.system.utils import issue_cmd
-from ace.system.utils import issue_cmd_as_non_root_user
+from ace.system.utils import *
 from nose.plugins.attrib import attr
 from nose.tools import ok_
 import glob
