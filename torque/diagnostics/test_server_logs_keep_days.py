@@ -18,55 +18,54 @@ from ace.config import *
 server_logs_path = os.path.join(TORQUE_HOME, "server_logs")
 
 
-def file_check(fname1, fname2):  # these are the only files that should exist in the directory after restarting TORQUE
-    #print "check_for_files() fname1: ", fname1, "  fname2: ", fname2
-
-    iteration = 0
-    for num in range(0, 10):
-        iteration += 1
-        #print "iteration: %d" % iteration
-        time.sleep(2)
-
-        found_other_files = False
-
-        filelist = glob.glob(server_logs_path+"/20*")
-        for fspec in filelist:
-            filename = basename(fspec)
-            if filename == fname1 or filename == fname2:
-                pass
-            else:
-                #print "filename ",filename, " NOT one of fnames passed in"
-                found_other_files = True
-                break
-
-        if not found_other_files:
-            break
-
-    if found_other_files:
-        print "FAILURE: file_check(): found other files besides : ", fname1, " and: ", fname2, " in: %s, iteration: %d...." % (server_logs_path, iteration)
-        return False
-    else:
-        print "SUCCESS: file_check(): fname1: ", fname1, "  fname2: ", fname2, " were the only files found in: %s, iteration: %d" % (server_logs_path, iteration)
-        return True
-
-
 @attr(owner='dmarsh')
 @attr(level=1)        # options are: 1, 2
 @attr(jira='AC-5291')
 
 class TestServerLogs():
 
+    def file_check(self, fname1, fname2):  # these are the only files that should exist in the directory after restarting TORQUE
+        #print "check_for_files() fname1: ", fname1, "  fname2: ", fname2
+    
+        iteration = 0
+        for num in range(0, 10):
+            iteration += 1
+            #print "iteration: %d" % iteration
+            time.sleep(2)
+    
+            found_other_files = False
+    
+            filelist = glob.glob(server_logs_path+"/20*")
+            for fspec in filelist:
+                filename = basename(fspec)
+                if filename == fname1 or filename == fname2:
+                    pass
+                else:
+                    #print "filename ",filename, " NOT one of fnames passed in"
+                    found_other_files = True
+                    break
+    
+            if not found_other_files:
+                break
+    
+        if found_other_files:
+            print "FAILURE: file_check(): found other files besides : ", fname1, " and: ", fname2, " in: %s, iteration: %d...." % (server_logs_path, iteration)
+            return False
+        else:
+            print "SUCCESS: file_check(): fname1: ", fname1, "  fname2: ", fname2, " were the only files found in: %s, iteration: %d" % (server_logs_path, iteration)
+            return True
+
     @attr(suite='all')
     def test_mom_logs(self):
-        print "\n\nServer Logs Test -- STARTING...."
         # make sure dir exists
-        ok_( os.path.isdir(server_logs_path) ), "ERROR: path %s is not found" % (server_logs_path)
+        ok_( os.path.isdir(server_logs_path), msg="ERROR: path %s is not found" % (server_logs_path))
          # now restart TORQUE
         print "Restarting TORQUE..."
         if is_process_running('pbs_server'):
           issue_cmd(['sudo', 'qterm'])
-          time.sleep(3)
+          time.sleep(5)
         output,err = issue_cmd( ["sudo","pbs_server"] )
+        time.sleep(5)
         #print "TORQUE restarted..."
 
         # enter a new parameter into torque:  qmgr -c "set server log_keep_days=2"
@@ -136,13 +135,13 @@ class TestServerLogs():
         output,err = issue_cmd( "pbs_server" )
         #print "pbs_server output", output, "  err: ", err
         #print "TORQUE restarted..."
-        print "sleeping for 5 seconds, then calling qstat"
-        time.sleep(5)
+        print "sleeping for 10 seconds, then calling qstat"
+        time.sleep(10)
         output,err = issue_cmd("qstat")
         #print "qstat output: ", output
 
         print "making sure only 2 log files are in the server_logs directory..."
-        retstat = file_check(today_fname, one_day_ago_fname) # loop until we only see these filenames in the dir
-        ok_( retstat ), "ERROR: restarting TORQUE did not remove all but 2 latest log files in:  %s" % (server_logs_path)
+        retstat = self.file_check(today_fname, one_day_ago_fname) # loop until we only see these filenames in the dir
+        ok_( retstat, msg="ERROR: restarting TORQUE did not remove all but 2 latest log files in:  %s" % (server_logs_path))
 
 

@@ -76,7 +76,7 @@ def check_pbsnodes_result():
 
         linenum += 1
 
-    return ret_val,node_names,err
+    return ret_val,node_names,output,err
 
 
 def wait_for_process_to_start( process_name ):
@@ -134,7 +134,7 @@ def wait_for_item_present( function_name, job_id ):
     ok_( found_in_list, msg="ERROR: job %s is NOT found in qstat list and should be, qstat results: %s" % (job_id, output))
 
 
-def do_is_torque_running( ):
+def is_torque_running( ):
     sys.stdout.write("  Making sure trqauthd, pbs_server, and pbs_mom services are running... ")
     # check to see if trqauthd, pbs_server, pbs_mom are already running -- if not, start them
     pid,err = get_pid ("trqauthd")
@@ -145,13 +145,3 @@ def do_is_torque_running( ):
 
     pid,err = get_pid ("pbs_mom")
     ok_( pid, msg="ERROR: pbs_mom is not currently running")
-
-    sys.stdout.write("OK")
-
-def do_get_pbsnodes_result( ):
-    sys.stdout.write("\n  Inspecting pbsnodes contents... ")
-
-    result,node_names,err = check_pbsnodes_result( )
-    ok_( result, msg="ERROR: pbsnodes result, node: %s, state is not free, pbsnodes output:\n%s" % (node_names[0], err))
-    sys.stdout.write("OK")
-

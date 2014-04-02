@@ -25,7 +25,7 @@ def is_running_as_root():
 #    return USERNAME
 
 def get_pid( process_name ):
-    pid, err = issue_cmd( ["pgrep", process_name] )
+    pid, err = issue_cmd( ["pgrep", process_name], ignore_errors=True )
     return pid.rstrip(),err # strip off whitespace chars
 
 def start_service( service_name ):
