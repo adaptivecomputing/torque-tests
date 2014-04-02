@@ -65,6 +65,9 @@ class TestServerLogs():
         ok_( os.path.isdir(server_logs_path) ), "ERROR: path %s is not found" % (server_logs_path)
          # now restart TORQUE
         print "Restarting TORQUE..."
+        if is_process_running('pbs_server'):
+          issue_cmd(['sudo', 'qterm'])
+          time.sleep(3)
         output,err = issue_cmd( ["sudo","pbs_server"] )
         #print "TORQUE restarted..."
 
