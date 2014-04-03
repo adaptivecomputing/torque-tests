@@ -73,7 +73,6 @@ class TestServerLogs():
         #print "log_keep_days  output: ", output, "  err: ", err
 
         # cd to mom logs dir
-        os.chdir(server_logs_path)   # Change current working directory
 
         today = date.today()
         day = datetime.timedelta(days=1)
@@ -86,10 +85,10 @@ class TestServerLogs():
         print "two_days_ago's date:", two_days_ago.strftime("%Y%m%d")
         print "three_days_ago's date:", three_days_ago.strftime("%Y%m%d")
 
-        today_fname = today.strftime("%Y%m%d")
-        one_day_ago_fname = one_day_ago.strftime("%Y%m%d")
-        two_days_ago_fname = two_days_ago.strftime("%Y%m%d")
-        three_days_ago_fname = three_days_ago.strftime("%Y%m%d")
+        today_fname = os.path.join(server_logs_path, today.strftime("%Y%m%d"))
+        one_day_ago_fname = os.path.join(server_logs_path, one_day_ago.strftime("%Y%m%d"))
+        two_days_ago_fname = os.path.join(server_logs_path, two_days_ago.strftime("%Y%m%d"))
+        three_days_ago_fname = os.path.join(server_logs_path, three_days_ago.strftime("%Y%m%d"))
 
         # create three 0-length files
         #fo = open(today_Logfilename, "w")
@@ -141,7 +140,7 @@ class TestServerLogs():
         #print "qstat output: ", output
 
         print "making sure only 2 log files are in the server_logs directory..."
-        retstat = self.file_check(today_fname, one_day_ago_fname) # loop until we only see these filenames in the dir
+        retstat = self.file_check(os.path.basename(today_fname), os.path.basename(one_day_ago_fname)) # loop until we only see these filenames in the dir
         ok_( retstat, msg="ERROR: restarting TORQUE did not remove all but 2 latest log files in:  %s" % (server_logs_path))
 
 
