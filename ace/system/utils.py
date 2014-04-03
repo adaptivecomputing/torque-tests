@@ -33,9 +33,9 @@ def start_service( service_name ):
     return output
 
 
-def issue_cmd(cmd, stdin = "", ignore_errors=False):
+def issue_cmd(cmd, stdin = "", ignore_errors=False, shell=False):
     #print "issue_cmd: cmd: ", cmd, ",  stdin: ",stdin
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
     out, err = p.communicate( stdin )
     if not ignore_errors and p.returncode!=0:
         print 'Standard output: %s' % out
@@ -43,7 +43,7 @@ def issue_cmd(cmd, stdin = "", ignore_errors=False):
         raise subprocess.CalledProcessError(p.returncode, str(cmd))
     return out,err
 
-def issue_cmd_as_non_root_user(cmd, stdin = "", ignore_errors=False):
+def issue_cmd_as_non_root_user(cmd, stdin = "", ignore_errors=False, shell=False):
     global USERNAME
     print "switching to non-root user: ", USERNAME, "... ",
     non_root_user_args = ['su', USERNAME, '-c']
@@ -51,7 +51,7 @@ def issue_cmd_as_non_root_user(cmd, stdin = "", ignore_errors=False):
     non_root_user_args.append(cmd)
     #print "non_root_user_args: ", non_root_user_args
     #print "stdin:" , stdin
-    p = subprocess.Popen(non_root_user_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(non_root_user_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
     out, err = p.communicate( stdin )
     if not ignore_errors and p.returncode!=0:
         print 'Standard output: %s' % out
